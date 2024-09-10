@@ -43,8 +43,27 @@ const subtractMatrices = (matrix1: Matrix, matrix2: Matrix): Matrix => {
   return (matrix1 as number[]).map((value, i) => value - (matrix2 as number[])[i]);
 };
 
+//Funcion para multiplicar matrices uni dimensionales
+const multiplyVectors = (vector1: number[], vector2: number[]): number => {
+  if (vector1.length !== vector2.length) {
+    throw new Error("Los vectores deben tener la misma longitud.");
+  }
+
+  let result = 0;
+  for (let i = 0; i < vector1.length; i++) {
+    result += vector1[i] * vector2[i];
+  }
+
+  return result;
+};
+
+
 // Función para multiplicar matrices bidimensionales
 const multiplyMatrices = (matrix1: number[][], matrix2: number[][]): number[][] => {
+  if (matrix1[0].length !== matrix2.length) {
+    throw new Error("Dimensiones incompatibles para la multiplicación bidimensional.");
+  }
+
   const result: number[][] = Array(matrix1.length)
     .fill(0)
     .map(() => Array(matrix2[0].length).fill(0));
@@ -53,6 +72,33 @@ const multiplyMatrices = (matrix1: number[][], matrix2: number[][]): number[][] 
     for (let j = 0; j < matrix2[0].length; j++) {
       for (let k = 0; k < matrix2.length; k++) {
         result[i][j] += matrix1[i][k] * matrix2[k][j];
+      }
+    }
+  }
+
+  return result;
+};
+
+//Funcion para multiplicar matrices tridimensionales
+const multiply3DMatrices = (matrix1: number[][][], matrix2: number[][][]): number[][][] => {
+  if (matrix1[0][0].length !== matrix2.length) {
+    throw new Error("Dimensiones incompatibles para la multiplicación tridimensional.");
+  }
+
+  const result: number[][][] = Array(matrix1.length)
+    .fill(0)
+    .map(() =>
+      Array(matrix1[0].length)
+        .fill(0)
+        .map(() => Array(matrix2[0][0].length).fill(0))
+    );
+
+  for (let i = 0; i < matrix1.length; i++) {
+    for (let j = 0; j < matrix1[0].length; j++) {
+      for (let k = 0; k < matrix2[0][0].length; k++) {
+        for (let l = 0; l < matrix2.length; l++) {
+          result[i][j][k] += matrix1[i][j][l] * matrix2[l][j][k];
+        }
       }
     }
   }
@@ -79,7 +125,7 @@ const MatrixCalculator: React.FC = () => {
   const createEmptyMatrix = (dim: number): Matrix => {
     if (dim === 1) return [0, 0, 0];
     if (dim === 2) return [[0, 0], [0, 0]];
-    if (dim === 3) return [[[0, 0], [0, 0]], [[0, 0], [0, 0]]];
+    if (dim === 3) return [[[0, 0, 0]], [[0, 0, 0], [0, 0, 0]]];
     return [];
   };
 
@@ -117,7 +163,16 @@ const MatrixCalculator: React.FC = () => {
     } else if (operation === "subtract") {
       result = subtractMatrices(matrix1, matrix2);  // Llamada a la función de resta
     } else if (operation === "multiply") {
-      result = multiplyMatrices(matrix1 as number[][], matrix2 as number[][]);  // Llamada a la función de multiplicación
+      if (dimension === 1) {
+        // Para matrices unidimensionales (vectores)
+        result = [multiplyVectors(matrix1 as number[], matrix2 as number[])]; // El resultado es un número (escalar) convertido a array
+      } else if (dimension === 2) {
+        // Para matrices bidimensionales
+        result = multiplyMatrices(matrix1 as number[][], matrix2 as number[][]);
+      } else if (dimension === 3) {
+        // Para matrices tridimensionales
+        result = multiply3DMatrices(matrix1 as number[][][], matrix2 as number[][][]);
+      }
     }
 
     setResultMatrix(result);  // Actualizar el resultado
@@ -138,7 +193,7 @@ const MatrixCalculator: React.FC = () => {
       <select id="operation" value={operation} onChange={handleOperationChange}>
         <option value="sum">Suma</option>
         <option value="subtract">Resta</option>
-        {dimension === 2 && <option value="multiply">Multiplicación</option>}
+        <option value="multiply">Multiplicación</option>
       </select>
 
       {/* Input para la primera matriz */}
