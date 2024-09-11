@@ -1,72 +1,69 @@
 import React, { useState } from "react";
 
-// Tipo para las matrices
+// Tipo para matrices de diferentes dimensiones
 type Matrix = number[][][] | number[][] | number[];
+
+// Verifica si un valor es un array de arrays
+const is2DArray = (value: any): value is number[][] => Array.isArray(value) && Array.isArray(value[0]);
+
+// Verifica si un valor es un array de arrays de arrays
+const is3DArray = (value: any): value is number[][][] => Array.isArray(value) && Array.isArray(value[0]) && Array.isArray(value[0][0]);
 
 // Función para sumar matrices
 const sumMatrices = (matrix1: Matrix, matrix2: Matrix): Matrix => {
-  if (Array.isArray(matrix1[0])) {
-    if (Array.isArray((matrix1 as number[][])[0])) {
-      // Para matrices tridimensionales
-      return (matrix1 as number[][][]).map((plane, i) =>
-        plane.map((row, j) =>
-          row.map((value, k) => value + (matrix2 as number[][][])[i][j][k])
-        )
-      );
-    }
-    // Para matrices bidimensionales
-    return (matrix1 as number[][]).map((row, i) =>
+  console.log("Sumando matrices...");
+  if (is3DArray(matrix1)) {
+    return matrix1.map((plane, i) =>
+      plane.map((row, j) =>
+        row.map((value, k) => value + (matrix2 as number[][][])[i][j][k])
+      )
+    );
+  } else if (is2DArray(matrix1)) {
+    return matrix1.map((row, i) =>
       row.map((value, j) => value + (matrix2 as number[][])[i][j])
     );
+  } else {
+    return (matrix1 as number[]).map((value, i) => value + (matrix2 as number[])[i]);
   }
-  // Para matrices unidimensionales
-  return (matrix1 as number[]).map((value, i) => value + (matrix2 as number[])[i]);
 };
 
 // Función para restar matrices
 const subtractMatrices = (matrix1: Matrix, matrix2: Matrix): Matrix => {
-  if (Array.isArray(matrix1[0])) {
-    if (Array.isArray((matrix1 as number[][])[0])) {
-      // Para matrices tridimensionales
-      return (matrix1 as number[][][]).map((plane, i) =>
-        plane.map((row, j) =>
-          row.map((value, k) => value - (matrix2 as number[][][])[i][j][k])
-        )
-      );
-    }
-    // Para matrices bidimensionales
-    return (matrix1 as number[][]).map((row, i) =>
+  console.log("Restando matrices...");
+  if (is3DArray(matrix1)) {
+    return matrix1.map((plane, i) =>
+      plane.map((row, j) =>
+        row.map((value, k) => value - (matrix2 as number[][][])[i][j][k])
+      )
+    );
+  } else if (is2DArray(matrix1)) {
+    return matrix1.map((row, i) =>
       row.map((value, j) => value - (matrix2 as number[][])[i][j])
     );
+  } else {
+    return (matrix1 as number[]).map((value, i) => value - (matrix2 as number[])[i]);
   }
-  // Para matrices unidimensionales
-  return (matrix1 as number[]).map((value, i) => value - (matrix2 as number[])[i]);
 };
 
-//Funcion para multiplicar matrices uni dimensionales
-const multiplyVectors = (vector1: number[], vector2: number[]): number => {
+// Función para multiplicar vectores (unidimensionales)
+const multiplyVectors = (vector1: number[], vector2: number[]): number[] => {
+  console.log("Multiplicando vectores...");
   if (vector1.length !== vector2.length) {
     throw new Error("Los vectores deben tener la misma longitud.");
   }
-
-  let result = 0;
-  for (let i = 0; i < vector1.length; i++) {
-    result += vector1[i] * vector2[i];
-  }
-
-  return result;
+  return vector1.map((value, i) => value * vector2[i]);
 };
-
 
 // Función para multiplicar matrices bidimensionales
 const multiplyMatrices = (matrix1: number[][], matrix2: number[][]): number[][] => {
+  console.log("Multiplicando matrices bidimensionales...");
   if (matrix1[0].length !== matrix2.length) {
     throw new Error("Dimensiones incompatibles para la multiplicación bidimensional.");
   }
 
-  const result: number[][] = Array(matrix1.length)
-    .fill(0)
-    .map(() => Array(matrix2[0].length).fill(0));
+  const result: number[][] = Array.from({ length: matrix1.length }, () =>
+    Array(matrix2[0].length).fill(0)
+  );
 
   for (let i = 0; i < matrix1.length; i++) {
     for (let j = 0; j < matrix2[0].length; j++) {
@@ -79,19 +76,23 @@ const multiplyMatrices = (matrix1: number[][], matrix2: number[][]): number[][] 
   return result;
 };
 
-//Funcion para multiplicar matrices tridimensionales
+// Función para multiplicar matrices tridimensionales
 const multiply3DMatrices = (matrix1: number[][][], matrix2: number[][][]): number[][][] => {
+  console.log("Multiplicando matrices tridimensionales...");
+
+  // Imprimir dimensiones de las matrices para depuración
+  console.log("Dimensiones de matrix1:", matrix1.length, matrix1[0].length, matrix1[0][0].length);
+  console.log("Dimensiones de matrix2:", matrix2.length, matrix2[0].length, matrix2[0][0].length);
+
   if (matrix1[0][0].length !== matrix2.length) {
     throw new Error("Dimensiones incompatibles para la multiplicación tridimensional.");
   }
 
-  const result: number[][][] = Array(matrix1.length)
-    .fill(0)
-    .map(() =>
-      Array(matrix1[0].length)
-        .fill(0)
-        .map(() => Array(matrix2[0][0].length).fill(0))
-    );
+  const result: number[][][] = Array.from({ length: matrix1.length }, () =>
+    Array.from({ length: matrix1[0].length }, () =>
+      Array(matrix2[0][0].length).fill(0)
+    )
+  );
 
   for (let i = 0; i < matrix1.length; i++) {
     for (let j = 0; j < matrix1[0].length; j++) {
@@ -125,7 +126,7 @@ const MatrixCalculator: React.FC = () => {
   const createEmptyMatrix = (dim: number): Matrix => {
     if (dim === 1) return [0, 0, 0];
     if (dim === 2) return [[0, 0], [0, 0]];
-    if (dim === 3) return [[[0, 0, 0]], [[0, 0, 0], [0, 0, 0]]];
+    if (dim === 3) return [[[0, 0, 0]], [[0, 0, 0]], [[0, 0, 0]]];
     return [];
   };
 
@@ -156,25 +157,34 @@ const MatrixCalculator: React.FC = () => {
   };
 
   const handleCalculate = () => {
+    console.log("Operación seleccionada:", operation);
+    console.log("Matrix1:", matrix1);
+    console.log("Matrix2:", matrix2);
+
     let result: Matrix | null = null;
 
-    if (operation === "sum") {
-      result = sumMatrices(matrix1, matrix2);  // Llamada a la función de suma
-    } else if (operation === "subtract") {
-      result = subtractMatrices(matrix1, matrix2);  // Llamada a la función de resta
-    } else if (operation === "multiply") {
-      if (dimension === 1) {
-        // Para matrices unidimensionales (vectores)
-        result = [multiplyVectors(matrix1 as number[], matrix2 as number[])]; // El resultado es un número (escalar) convertido a array
-      } else if (dimension === 2) {
-        // Para matrices bidimensionales
-        result = multiplyMatrices(matrix1 as number[][], matrix2 as number[][]);
-      } else if (dimension === 3) {
-        // Para matrices tridimensionales
-        result = multiply3DMatrices(matrix1 as number[][][], matrix2 as number[][][]);
+    try {
+      if (operation === "sum") {
+        result = sumMatrices(matrix1, matrix2);  // Llamada a la función de suma
+      } else if (operation === "subtract") {
+        result = subtractMatrices(matrix1, matrix2);  // Llamada a la función de resta
+      } else if (operation === "multiply") {
+        if (dimension === 1) {
+          // Para matrices unidimensionales (vectores)
+          result = [multiplyVectors(matrix1 as number[], matrix2 as number[])]; // El resultado es un número (escalar) convertido a array
+        } else if (dimension === 2) {
+          // Para matrices bidimensionales
+          result = multiplyMatrices(matrix1 as number[][], matrix2 as number[][]);
+        } else if (dimension === 3) {
+          // Para matrices tridimensionales
+          result = multiply3DMatrices(matrix1 as number[][][], matrix2 as number[][][]);
+        }
       }
+    } catch (error) {
+      console.error("Error en la operación:", error);
     }
 
+    console.log("Resultado:", result);
     setResultMatrix(result);  // Actualizar el resultado
   };
 
@@ -279,34 +289,26 @@ const MatrixCalculator: React.FC = () => {
       {/* Mostrar el resultado */}
       {resultMatrix && (
         <div>
-          <h3>Resultado</h3>
-          {Array.isArray(resultMatrix[0]) ? (
-            Array.isArray((resultMatrix as number[][])[0]) ? (
-              (resultMatrix as number[][][]).map((plane, i) => (
-                <div key={i}>
-                  {plane.map((row, j) => (
-                    <div key={j}>
-                      {row.map((value, k) => (
-                        <span key={k}>{value} </span>
-                      ))}
-                    </div>
+          <h3>Resultado:</h3>
+          {dimension === 1 && (resultMatrix as number[]).map((value, i) => <div key={i}>{value}</div>)}
+          {dimension === 2 && (resultMatrix as number[][]).map((row, i) => (
+            <div key={i}>
+              {row.map((value, j) => (
+                <span key={j}>{value} </span>
+              ))}
+            </div>
+          ))}
+          {dimension === 3 && (resultMatrix as number[][][]).map((plane, i) => (
+            <div key={i}>
+              {plane.map((row, j) => (
+                <div key={j}>
+                  {row.map((value, k) => (
+                    <span key={k}>{value} </span>
                   ))}
                 </div>
-              ))
-            ) : (
-              (resultMatrix as number[][]).map((row, i) => (
-                <div key={i}>
-                  {row.map((value, j) => (
-                    <span key={j}>{value} </span>
-                  ))}
-                </div>
-              ))
-            )
-          ) : (
-            (resultMatrix as number[]).map((value, i) => (
-              <span key={i}>{value} </span>
-            ))
-          )}
+              ))}
+            </div>
+          ))}
         </div>
       )}
     </div>
