@@ -1,0 +1,99 @@
+body {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  h1 {
+    color: #ffcc00;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    font-size: 1.2rem;
+    margin-right: 10px;
+  }
+  
+  select, input {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #666666;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 4px;
+  }
+  
+  select:focus, input:focus {
+    outline: none;
+    border-color: #ffcc00;
+  }
+  
+  button {
+    background-color: #ffcc00;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    border-radius: 5px;
+  }
+  
+  button:hover {
+    background-color: #e6b800;
+  }
+  
+  h3 {
+    color: #ffcc00;
+    margin-top: 20px;
+  }
+  
+  input[type="number"] {
+    width: 60px;
+    text-align: center;
+    font-size: 1rem;
+  }
+  
+  input[type="number"] + input[type="number"] {
+    margin-left: 10px;
+  }
+  
+  div {
+    text-align: center;
+  }
+  
+  /* Estilo para las matrices */
+  .matrix-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .matrix-row {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .matrix-row div {
+    margin: 0 5px;
+  }
+  
+  .matrix-plane {
+    margin-right: 20px;
+  }
+  
+  span {
+    font-size: 1.2rem;
+    padding: 5px;
+    background-color: #333333;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 40px;
+  }
+  

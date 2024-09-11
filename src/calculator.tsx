@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import './calculator.css'
 
 // Tipo para matrices de diferentes dimensiones
 type Matrix = number[][][] | number[][] | number[];
